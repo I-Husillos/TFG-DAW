@@ -1,0 +1,73 @@
+services:
+  service-php:
+    container_name: service-php
+    build:
+      context: .
+      dockerfile: ./.docker/docker-fpm/Dockerfile
+    volumes:
+    - ./src:/var/www/html
+    ports:
+    - "${DOCKER_PHP_PORT}:80"
+    networks:
+    - ${DOCKER_NETWORK}
+    depends_on:
+    - service-mysql
+    - service-redis
+
+  service-composer:
+    container_name: service-composer
+    build:
+      context: .
+      dockerfile: ./.docker/docker-composer/Dockerfile
+    volumes:
+    - ./src:/var/www/html
+    networks:
+    - ${DOCKER_NETWORK}
+
+  service-mysql:
+    container_name: service-mysql
+    build:
+      context: .
+      dockerfile: ./.docker/docker-mysql/Dockerfile
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DOCKER_MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DOCKER_MYSQL_DATABASE}
+      MYSQL_USER: ${DOCKER_MYSQL_USER}
+      MYSQL_PASSWORD: ${DOCKER_MYSQL_PASSWORD}
+    ports:
+    - "${DOCKER_MYSQL_PORT}:3306"
+    volumes:
+    - ./.docker/volumes/mysql-data:/var/lib/mysql
+    networks:
+    - ${DOCKER_NETWORK}
+
+  service-redis:
+    image: redis:latest
+    container_name: service-redis
+    ports:
+    - "${DOCKER_REDIS_PORT}:6379"
+    networks:
+    - ${DOCKER_NETWORK}
+
+  service-phpmyadmin:
+    container_name: service-phpmyadmin
+    image: phpmyadmin/phpmyadmin:latest
+    environment:
+      PMA_HOST: service-mysql
+    ports:
+    - "${DOCKER_PHP_PORT}:8080"
+    networks:
+    - ${DOCKER_NETWORK}
+
+  service-mailpit:
+    container_name: service-mailpit
+    image: mailpit/mailpit:latest
+    ports:
+    - "${DOCKER_MAILPIT_PORT}:8025"
+    networks:
+    - ${DOCKER_NETWORK}
+
+
+networks:
+  ${DOCKER_NETWORK}:
+    driver: bridge

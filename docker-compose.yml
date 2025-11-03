@@ -6,13 +6,28 @@ services:
       dockerfile: ./.docker/docker-fpm/Dockerfile
     volumes:
     - ./src:/var/www/html
-    ports:
-    - "${DOCKER_PHP_PORT}:80"
-    networks:
-    - ${DOCKER_NETWORK}
     depends_on:
     - service-mysql
     - service-redis
+    networks:
+    - ${DOCKER_NETWORK}
+    command: sh -c "chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache && php artisan key:generate && php artisan migrate --force && php-fpm"
+
+
+  service-apache:
+    container_name: service-apache
+    build:
+      context: .
+      dockerfile: ./.docker/docker-apache/Dockerfile
+    ports:
+    - "${DOCKER_PHP_PORT}:80"
+    volumes:
+    - ./src:/var/www/html:ro
+    - ./.docker/apache/000-default.conf:/etc/apache2/sites-available/000-default.conf:ro
+    depends_on:
+    - service-php
+    networks:
+    - ${DOCKER_NETWORK}
 
   service-composer:
     container_name: service-composer
@@ -26,9 +41,7 @@ services:
 
   service-mysql:
     container_name: service-mysql
-    build:
-      context: .
-      dockerfile: ./.docker/docker-mysql/Dockerfile
+    image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: ${DOCKER_MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${DOCKER_MYSQL_DATABASE}
@@ -55,19 +68,23 @@ services:
     environment:
       PMA_HOST: service-mysql
     ports:
-    - "${DOCKER_PHP_PORT}:8080"
+    - "${DOCKER_PHPMYADMIN_PORT}:80"
     networks:
     - ${DOCKER_NETWORK}
 
   service-mailpit:
     container_name: service-mailpit
-    image: mailpit/mailpit:latest
+    image: axllent/mailpit:latest
     ports:
     - "${DOCKER_MAILPIT_PORT}:8025"
+    - "1025:1025"
     networks:
     - ${DOCKER_NETWORK}
 
 
 networks:
-  ${DOCKER_NETWORK}:
+  red-app:
     driver: bridge
+
+volumes:
+  mysql-data:

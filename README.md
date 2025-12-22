@@ -94,3 +94,29 @@ Una vez completados estos pasos, la aplicación debería estar accesible en `htt
 -   `src/`: Contiene el código fuente completo de la aplicación Laravel.
 -   `docker-compose.yml`: Archivo principal que orquesta el levantamiento de los contenedores de desarrollo.
 -   `.env`: Archivo de configuración principal de docker-compose.
+
+## Estructura de la Base de Datos
+
+La aplicación Laravel utiliza los siguientes modelos y migraciones para definir la estructura de la base de datos.
+
+### Modelos
+
+Los modelos de Eloquent se encuentran en `src/app/Models/`:
+
+-   `User.php`: Modelo para los usuarios.
+-   `Account.php`: Modelo para las cuentas de los usuarios.
+-   `Category.php`: Modelo para las categorías de las transacciones.
+-   `Transaction.php`: Modelo para las transacciones.
+
+### Migraciones y Tablas
+
+Las migraciones de la base de datos se encuentran en `src/database/migrations/` y definen las siguientes tablas:
+
+-   `users`: Almacena la información de los usuarios.
+-   `accounts`: Almacena las cuentas bancarias asociadas a los usuarios.
+-   `categories`: Define las categorías para clasificar las transacciones (ej. "Comida", "Transporte").
+-   `transactions`: Contiene los registros de ingresos y gastos.
+-   `budgets`: Almacena los presupuestos mensuales o periódicos para diferentes categorías.
+-   `imports`: Registra las importaciones de datos (ej. desde un extracto bancario).
+-   `audit_logs`: Guarda un historial de acciones importantes realizadas en el sistema.
+-   `cache`, `jobs`: Tablas auxiliares gestionadas por Laravel.

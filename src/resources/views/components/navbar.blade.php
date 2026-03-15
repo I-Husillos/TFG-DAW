@@ -1,50 +1,74 @@
 {{--
-    components/navbar.blade.php
-    Barra de navegación superior de AdminLTE.
-    Se incluye desde layouts/app.blade.php con @include('components.navbar').
+    Navbar superior de AdminLTE.
+    Sin roles ni badges: monousuario, un único perfil.
+    El username viene de auth()->user()->username
+    porque 'name' ya no existe en la tabla users.
 --}}
 <nav class="main-header navbar navbar-expand navbar-white navbar-light">
 
-    {{-- Botón para colapsar/expandir el sidebar --}}
+    {{-- Toggle del sidebar --}}
     <ul class="navbar-nav">
         <li class="nav-item">
-            {{--
-                data-widget="pushmenu" es el atributo de AdminLTE
-                que activa el toggle del sidebar. No necesita JS propio.
-            --}}
             <a class="nav-link" data-widget="pushmenu" href="#" role="button">
                 <i class="fas fa-bars"></i>
             </a>
         </li>
     </ul>
 
-    {{-- Elementos de la derecha --}}
+    {{-- Elementos derecha --}}
     <ul class="navbar-nav ml-auto">
 
-        {{-- Nombre y rol del usuario autenticado --}}
+        {{-- Username del usuario autenticado --}}
         <li class="nav-item d-none d-sm-inline-block">
-            <span class="nav-link text-muted">
-                <i class="fas fa-user mr-1"></i>
-                {{ auth()->user()->name }}
-                <span class="badge badge-{{ auth()->user()->isAdmin() ? 'danger' : 'primary' }} ml-1">
-                    {{ auth()->user()->role }}
-                </span>
-            </span>
+            <a href="{{ route('profile.edit') }}" class="nav-link">
+                <i class="fas fa-user-circle mr-1"></i>
+                {{ auth()->user()->username }}
+            </a>
         </li>
 
-        {{-- Separador visual --}}
         <li class="nav-item d-none d-sm-inline-block">
             <span class="nav-link text-muted">|</span>
         </li>
 
-        {{-- Logout --}}
+        {{-- Badge de alertas de presupuesto --}}
+        @if($budgetAlertCount > 0)
+            <li class="nav-item dropdown">
+                <a class="nav-link" data-toggle="dropdown" href="#" role="button">
+                    <i class="fas fa-exclamation-triangle text-warning"></i>
+                    <span class="badge badge-warning navbar-badge">
+                        {{ $budgetAlertCount }}
+                    </span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg">
+                    <span class="dropdown-item dropdown-header">
+                        {{ $budgetAlertCount }}
+                        {{ $budgetAlertCount === 1 ? 'presupuesto' : 'presupuestos' }}
+                        con alerta
+                    </span>
+                    <div class="dropdown-divider"></div>
+                    @foreach($budgetAlerts as $alert)
+                        <a href="{{ route('budgets.index') }}" class="dropdown-item">
+                            <i class="fas fa-wallet mr-2
+                                {{ $alert['exceeded'] ? 'text-danger' : 'text-warning' }}">
+                            </i>
+                            <span class="{{ $alert['exceeded'] ? 'text-danger' : 'text-warning' }}">
+                                {{ $alert['category'] }}
+                            </span>
+                            <span class="float-right text-muted text-sm">
+                                {{ $alert['percentage'] }}%
+                            </span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                    @endforeach
+                    <a href="{{ route('budgets.index') }}" class="dropdown-item dropdown-footer">
+                        Ver todos los presupuestos
+                    </a>
+                </div>
+            </li>
+        @endif
+
+        {{-- Logout con formulario POST --}}
         <li class="nav-item">
-            {{--
-                Usamos un formulario POST visible en lugar de JS inline
-                (onclick="submit()") que usa tickets-main.
-                Es más limpio, no mezcla JS en HTML y es igual de funcional.
-                data-dismiss no es necesario aquí — es un submit directo.
-            --}}
             <form action="{{ route('logout') }}" method="POST" class="d-inline">
                 @csrf
                 <button type="submit" class="nav-link btn btn-link">

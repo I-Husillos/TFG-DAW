@@ -1,117 +1,211 @@
-{{--
-    Vista del dashboard principal.
-    Extiende layouts/app.blade.php que incluye navbar y sidebar.
-    Solo define el contenido específico de esta página.
---}}
 @extends('layouts.app')
 
 @section('title', 'Dashboard')
 
+@push('breadcrumb')
+<li class="breadcrumb-item active">Dashboard</li>
+@endpush
+
 @section('content')
-
-    <div class="row">
-
-        {{-- Tarjeta: Total ingresos (placeholder hasta implementar lógica) --}}
-        <div class="col-lg-3 col-6">
-            <div class="small-box bg-success">
-                <div class="inner">
-                    <h3>0,00 €</h3>
-                    <p>Ingresos este mes</p>
+@if(isset($budgetAlerts) && $budgetAlerts->count() > 0)
+    <div class="row mb-3">
+        <div class="col-12">
+            @foreach($budgetAlerts as $alert)
+                <div class="alert alert-{{ $alert['exceeded'] ? 'danger' : 'warning' }} alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert">
+                        <span>&times;</span>
+                    </button>
+                    <h5>
+                        <i class="fas fa-exclamation-triangle mr-1"></i>
+                        @if($alert['exceeded'])
+                            Presupuesto superado: <strong>{{ $alert['category'] }}</strong>
+                        @else
+                            Alerta de presupuesto: <strong>{{ $alert['category'] }}</strong>
+                        @endif
+                    </h5>
+                    Has gastado <strong>{{ number_format($alert['spent'], 2, ',', '.') }} €</strong>
+                    ({{ $alert['percentage'] }}%) del límite definido para este mes.
+                    <a href="{{ route('budgets.index') }}" class="alert-link ml-1">
+                        Ver presupuestos
+                    </a>
                 </div>
-                <div class="icon">
-                    <i class="fas fa-arrow-up"></i>
-                </div>
-                <a href="#" class="small-box-footer">
-                    Ver detalle <i class="fas fa-arrow-circle-right"></i>
-                </a>
-            </div>
-        </div>
-
-        {{-- Tarjeta: Total gastos --}}
-        <div class="col-lg-3 col-6">
-            <div class="small-box bg-danger">
-                <div class="inner">
-                    <h3>0,00 €</h3>
-                    <p>Gastos este mes</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-arrow-down"></i>
-                </div>
-                <a href="#" class="small-box-footer">
-                    Ver detalle <i class="fas fa-arrow-circle-right"></i>
-                </a>
-            </div>
-        </div>
-
-        {{-- Tarjeta: Balance --}}
-        <div class="col-lg-3 col-6">
-            <div class="small-box bg-info">
-                <div class="inner">
-                    <h3>0,00 €</h3>
-                    <p>Balance del mes</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-wallet"></i>
-                </div>
-                <a href="#" class="small-box-footer">
-                    Ver cuentas <i class="fas fa-arrow-circle-right"></i>
-                </a>
-            </div>
-        </div>
-
-        {{-- Tarjeta: Transacciones --}}
-        <div class="col-lg-3 col-6">
-            <div class="small-box bg-warning">
-                <div class="inner">
-                    <h3>0</h3>
-                    <p>Transacciones este mes</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-exchange-alt"></i>
-                </div>
-                <a href="#" class="small-box-footer">
-                    Ver todas <i class="fas fa-arrow-circle-right"></i>
-                </a>
-            </div>
-        </div>
-
-    </div>
-
-    {{-- Fila de placeholders para gráficos (se rellenarán en la Fase F) --}}
-    <div class="row">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-chart-line mr-1"></i>
-                        Ingresos vs Gastos — últimos 6 meses
-                    </h3>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted text-center py-5">
-                        <i class="fas fa-chart-line fa-3x mb-3 d-block"></i>
-                        Los gráficos se implementarán en la fase de Dashboard e Informes.
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-tags mr-1"></i>
-                        Top categorías de gasto
-                    </h3>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted text-center py-5">
-                        <i class="fas fa-tags fa-3x mb-3 d-block"></i>
-                        Disponible cuando haya transacciones registradas.
-                    </p>
-                </div>
-            </div>
+            @endforeach
         </div>
     </div>
+@endif
+
+{{-- ── Tarjetas resumen del mes ─────────────────────────────── --}}
+<div class="row">
+
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-success">
+            <div class="inner">
+                <h3>{{ number_format($totalIncome, 2, ',', '.') }} €</h3>
+                <p>Ingresos este mes</p>
+            </div>
+            <div class="icon"><i class="fas fa-arrow-up"></i></div>
+            <a href="{{ route('transactions.index', ['type' => 'income']) }}"
+                class="small-box-footer">
+                Ver detalle <i class="fas fa-arrow-circle-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-danger">
+            <div class="inner">
+                <h3>{{ number_format($totalExpense, 2, ',', '.') }} €</h3>
+                <p>Gastos este mes</p>
+            </div>
+            <div class="icon"><i class="fas fa-arrow-down"></i></div>
+            <a href="{{ route('transactions.index', ['type' => 'expense']) }}"
+                class="small-box-footer">
+                Ver detalle <i class="fas fa-arrow-circle-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-6">
+        <div class="small-box {{ $balance >= 0 ? 'bg-info' : 'bg-warning' }}">
+            <div class="inner">
+                <h3>{{ number_format($balance, 2, ',', '.') }} €</h3>
+                <p>Balance del mes</p>
+            </div>
+            <div class="icon"><i class="fas fa-balance-scale"></i></div>
+            <a href="{{ route('reports.index') }}" class="small-box-footer">
+                Ver informes <i class="fas fa-arrow-circle-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-secondary">
+            <div class="inner">
+                <h3>{{ $transactionCount }}</h3>
+                <p>Transacciones este mes</p>
+            </div>
+            <div class="icon"><i class="fas fa-list-ul"></i></div>
+            <a href="{{ route('transactions.index') }}" class="small-box-footer">
+                Ver todas <i class="fas fa-arrow-circle-right"></i>
+            </a>
+        </div>
+    </div>
+
+</div>
+
+<div class="row">
+
+    {{-- ── Últimas transacciones ────────────────────────────── --}}
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-exchange-alt mr-1"></i>
+                    Últimas transacciones
+                </h3>
+                <div class="card-tools">
+                    <a href="{{ route('transactions.index') }}"
+                        class="btn btn-sm btn-primary">
+                        Ver todas
+                    </a>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                @if($latestTransactions->isEmpty())
+                <p class="text-muted text-center py-4">
+                    No hay transacciones registradas aún.
+                </p>
+                @else
+                <table class="table table-sm table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Descripción</th>
+                            <th>Categoría</th>
+                            <th class="text-right">Importe</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($latestTransactions as $transaction)
+                        <tr>
+                            <td>{{ $transaction->date->format('d/m/Y') }}</td>
+                            <td>{{ $transaction->name ?? $transaction->merchant ?? '—' }}</td>
+                            <td>
+                                {{ $transaction->category?->display_name
+                                               ?? $transaction->category?->name
+                                               ?? '—' }}
+                            </td>
+                            <td class="text-right">
+                                <span class="badge badge-{{ $transaction->type === 'income' ? 'success' : 'danger' }}">
+                                    {{ $transaction->type === 'income' ? '+' : '-' }}
+                                    {{ number_format($transaction->amount, 2, ',', '.') }} €
+                                </span>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    {{-- ── Presupuestos del mes ─────────────────────────────── --}}
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-wallet mr-1"></i>
+                    Presupuestos del mes
+                </h3>
+                <div class="card-tools">
+                    <a href="{{ route('budgets.index') }}"
+                        class="btn btn-sm btn-primary">
+                        Ver todos
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                @if($budgets->isEmpty())
+                <p class="text-muted text-center py-3">
+                    No hay presupuestos definidos para este mes.
+                </p>
+                @else
+                @foreach($budgets as $budget)
+                @php
+                $spent = $budget->spentAmount();
+                $percentage = $budget->spentPercentage() * 100;
+                $color = $percentage >= 100 ? 'danger'
+                : ($percentage >= 80 ? 'warning' : 'success');
+                @endphp
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>
+                            {{ $budget->category->display_name
+                                           ?? $budget->category->name }}
+                        </span>
+                        <span class="text-muted small">
+                            {{ number_format($spent, 2, ',', '.') }} €
+                            / {{ number_format($budget->limit_amount, 2, ',', '.') }} €
+                        </span>
+                    </div>
+                    {{-- AdminLTE progress bar nativa --}}
+                    <div class="progress progress-sm">
+                        <div class="progress-bar bg-{{ $color }}"
+                            style="width: {{ min($percentage, 100) }}%"
+                            role="progressbar"
+                            aria-valuenow="{{ $percentage }}"
+                            aria-valuemin="0"
+                            aria-valuemax="100">
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+                @endif
+            </div>
+        </div>
+    </div>
+
+</div>
 
 @endsection

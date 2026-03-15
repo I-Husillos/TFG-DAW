@@ -22,7 +22,7 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email'    => ['required', 'string', 'email', 'max:150'],
+            'email'    => ['required', 'string', 'max:150'],
             'password' => ['required', 'string', 'min:8'],
         ];
     }
@@ -30,11 +30,10 @@ class LoginRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'email.required' => 'El campo de correo electrónico es obligatorio.',
-            'email.email'    => 'El campo de correo electrónico debe ser una dirección de correo válida.',
-            'email.max'      => 'El campo de correo electrónico no puede tener más de 150 caracteres.',
-            'password.required' => 'El campo de contraseña es obligatorio.',
-            'password.min'      => 'El campo de contraseña debe tener al menos 8 caracteres.',
+            'email.required'    => 'El correo o nombre de usuario es obligatorio.',
+            'email.max'         => 'El campo no puede tener más de 150 caracteres.',
+            'password.required' => 'La contraseña es obligatoria.',
+            'password.min'      => 'La contraseña debe tener al menos 8 caracteres.',
         ];
     }
 }

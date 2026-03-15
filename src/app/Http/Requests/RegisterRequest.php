@@ -22,24 +22,45 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'     => ['required', 'string', 'max:255'],
-            'email'    => ['required', 'string', 'email', 'max:150', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'username' => [
+                'required',
+                'string',
+                'min:3',
+                'max:50',
+                'unique:users,username',
+                'regex:/^[a-zA-Z0-9_\-]+$/',
+            ],
+            'email'    => [
+                'required',
+                'string',
+                'email',
+                'max:150',
+                'unique:users,email',
+            ],
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'confirmed',
+            ],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'name.required' => 'El campo de nombre es obligatorio.',
-            'name.max'      => 'El campo de nombre no puede tener más de 255 caracteres.',
-            'email.required' => 'El campo de correo electrónico es obligatorio.',
-            'email.email'    => 'El campo de correo electrónico debe ser una dirección de correo válida.',
-            'email.max'      => 'El campo de correo electrónico no puede tener más de 150 caracteres.',
-            'email.unique'   => 'El correo electrónico ya está registrado.',
-            'password.required' => 'El campo de contraseña es obligatorio.',
-            'password.min'      => 'El campo de contraseña debe tener al menos 8 caracteres.',
-            'password.confirmed' => 'La confirmación de la contraseña no coincide.',
+            'username.required' => 'El nombre de usuario es obligatorio.',
+            'username.min'      => 'El nombre de usuario debe tener al menos 3 caracteres.',
+            'username.max'      => 'El nombre de usuario no puede tener más de 50 caracteres.',
+            'username.unique'   => 'Este nombre de usuario ya está en uso.',
+            'username.regex'    => 'El nombre de usuario solo puede contener letras, números, guiones y guiones bajos.',
+            'email.required'    => 'El correo electrónico es obligatorio.',
+            'email.email'       => 'Introduce un correo electrónico válido.',
+            'email.max'         => 'El correo no puede tener más de 150 caracteres.',
+            'email.unique'      => 'Este correo electrónico ya está registrado.',
+            'password.required' => 'La contraseña es obligatoria.',
+            'password.min'      => 'La contraseña debe tener al menos 8 caracteres.',
+            'password.confirmed' => 'La confirmación de contraseña no coincide.',
         ];
     }
 }

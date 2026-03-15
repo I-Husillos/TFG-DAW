@@ -5,35 +5,49 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
+use App\Models\Profile;
 use App\Models\User;
-use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
+    // Muestra la página de login / landing.
     public function showLogin()
     {
         return view('auth.login');
     }
 
+    // Procesa el intento de login.
+    // Permite iniciar sesión con email o username.
+    // SRP: la validación la gestiona LoginRequest,
+    // la autenticación Auth::attempt, el controlador
+    // solo orquesta.
     public function login(LoginRequest $request)
     {
-        $credentials = $request->validated();
+        $input = $request->validated();
 
-        if (Auth::attempt($credentials)) {
+        // Detectamos si el campo contiene un @ para
+        // saber si es email o username y construimos
+        // las credenciales correctas para Auth::attempt.
+        $field       = str_contains($input['email'], '@') ? 'email' : 'username';
+        $credentials = [
+            $field     => $input['email'],
+            'password' => $input['password'],
+        ];
+
+        if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-
-
-            return redirect()->intended('dashboard');
+            return redirect()->intended(route('dashboard'));
         }
 
-        return back()->withErrors([
-            'email' => 'Las credenciales proporcionadas no son correctas.',
-        ])->onlyInput('email');
+        return back()
+            ->withErrors(['email' => 'Las credenciales no son correctas.'])
+            ->onlyInput('email');
     }
 
+    // Muestra el formulario de registro.
     public function showRegister()
     {
         return view('auth.register');
@@ -43,20 +57,33 @@ class AuthController extends Controller
     {
         $data = $request->validated();
 
-        $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-            'role'     => 'user', // por defecto siempre 'user'
-            'currency' => 'EUR',
-            'timezone' => 'Europe/Madrid',
-        ]);
+        // DB::transaction garantiza que ambas
+        // inserciones (users y profiles) son atómicas.
+        $user = DB::transaction(function () use ($data) {
+            $user = User::create([
+                'username' => $data['username'],
+                'email'    => $data['email'],
+                'password' => $data['password'], // el modelo lo hashea via cast
+            ]);
+
+            // El profile se crea con valores por defecto.
+            // El usuario los rellenará desde /profile.
+            Profile::create([
+                'user_id'  => $user->id,
+                'currency' => 'EUR',
+                'language' => 'es',
+                'timezone' => 'Europe/Madrid',
+            ]);
+
+            return $user;
+        });
 
         Auth::login($user);
 
         return redirect()->route('dashboard');
     }
 
+    // Cierra la sesión del usuario.
     public function logout(Request $request)
     {
         Auth::logout();

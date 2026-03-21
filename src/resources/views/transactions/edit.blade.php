@@ -50,6 +50,8 @@
                     <div class="form-group">
                         <label for="category_id">Categoría</label>
                         <select name="category_id" id="category_id"
+                            data-category-select
+                            data-placeholder="Buscar categoría..."
                             class="form-control @error('category_id') is-invalid @enderror">
                             <option value="">Sin categoría</option>
                             @foreach($categories as $category)

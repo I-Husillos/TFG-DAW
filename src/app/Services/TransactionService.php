@@ -6,14 +6,27 @@ use App\Models\AuditLog;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Servicio responsable de las operaciones CRUD sobre transacciones.
+ */
 class TransactionService
 {
-    // Crea una nueva transacción y registra el evento
-    // en audit_logs para trazabilidad.
-    // SRP: esta clase es la única responsable de la
-    // lógica de negocio sobre transacciones.
-    // El controlador no sabe cómo se crea, solo pide
-    // que se cree.
+    /**
+     * Inyección de dependencias a través del constructor.
+     *
+     * Laravel resuelve automáticamente BudgetNotificationService
+     * cuando el contenedor de dependencias instancia TransactionService.
+     * No necesitas instanciarlo manualmente en ningún sitio.
+     */
+    public function __construct(
+        private BudgetNotificationServise $budgetNotificationService
+    ) {}
+
+    /**
+     * Crea una nueva transacción y registra el evento en audit_logs.
+     * Si la transacción es un gasto, comprueba si algún presupuesto
+     * ha alcanzado su umbral de alerta y notifica al usuario.
+     */
     public function store(array $data): Transaction
     {
         $transaction = Transaction::create([
@@ -30,16 +43,22 @@ class TransactionService
 
         $this->audit('created', $transaction, []);
 
+        // Solo comprobamos alertas si el gasto puede afectar a un presupuesto.
+        // Los ingresos no consumen presupuesto.
+        if ($transaction->type === 'expense') {
+            $this->budgetNotificationService->checkAndNotify($transaction->user_id);
+        }
+
         return $transaction;
     }
 
-    // Actualiza una transacción existente y registra
-    // en audit_logs exactamente qué campos cambiaron
-    // y qué valores tenían antes (el diff).
+    /**
+     * Actualiza una transacción existente y registra en audit_logs
+     * exactamente qué campos cambiaron.
+     * Si la transacción actualizada es un gasto, comprueba alertas.
+     */
     public function update(Transaction $transaction, array $data): Transaction
     {
-        // Capturamos los valores originales antes de
-        // modificar para poder guardar el diff.
         $original = $transaction->only(array_keys($data));
 
         $transaction->update([
@@ -53,8 +72,6 @@ class TransactionService
             'description' => $data['description'] ?? null,
         ]);
 
-        // Diff: solo guardamos los campos que cambiaron.
-        // Formato: { campo: [valor_anterior, valor_nuevo] }
         $diff = [];
         foreach ($data as $key => $newValue) {
             if (isset($original[$key]) && (string) $original[$key] !== (string) $newValue) {
@@ -64,12 +81,23 @@ class TransactionService
 
         $this->audit('updated', $transaction, $diff);
 
+        // Al editar una transacción de tipo expense (ya sea que se cambió
+        // el tipo o el importe), también comprobamos las alertas.
+        // Nota: usamos el tipo ACTUALIZADO de la transacción.
+        $transaction->refresh(); // recargamos para obtener el tipo actualizado
+        if ($transaction->type === 'expense') {
+            $this->budgetNotificationService->checkAndNotify($transaction->user_id);
+        }
+
         return $transaction;
     }
 
-    // Elimina una transacción y deja constancia en
-    // audit_logs de que existió y fue eliminada,
-    // guardando todos sus valores anteriores en diff.
+    /**
+     * Elimina una transacción.
+     * No comprobamos alertas al eliminar porque eliminar un gasto
+     * solo puede reducir el consumo del presupuesto, nunca cruzar
+     * un umbral hacia arriba.
+     */
     public function destroy(Transaction $transaction): void
     {
         $this->audit('deleted', $transaction, $transaction->toArray());
@@ -77,10 +105,10 @@ class TransactionService
         $transaction->delete();
     }
 
-    // Método privado que escribe en audit_logs.
-    // Privado porque solo este servicio debe usarlo:
-    // nada externo debería poder escribir auditorías
-    // de transacciones directamente.
+    /**
+     * Escribe un registro en audit_logs.
+     * Método privado porque solo este servicio debe usarlo.
+     */
     private function audit(string $action, Transaction $transaction, array $diff): void
     {
         AuditLog::create([

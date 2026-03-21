@@ -11,7 +11,7 @@ class ForgotPasswordController extends Controller
     // Muestra el formulario para solicitar el enlace de restablecimiento de contraseña.
     public function showLinkRequestForm()
     {
-        return view('auth.passwords.email');
+        return view('auth.password.email');
     }
 
     // Procesa el envío del formulario para solicitar el enlace de restablecimiento de contraseña.

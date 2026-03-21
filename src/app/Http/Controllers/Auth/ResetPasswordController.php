@@ -15,7 +15,7 @@ class ResetPasswordController extends Controller
     // Muestra el formulario con el token del email.
     public function showResetForm(Request $request, string $token)
     {
-        return view('auth.passwords.reset', [
+        return view('auth.password.reset', [
             'token' => $token,
             'email' => $request->email,
         ]);

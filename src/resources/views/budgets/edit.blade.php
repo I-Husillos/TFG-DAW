@@ -29,6 +29,8 @@
                             Categoría <span class="text-danger">*</span>
                         </label>
                         <select name="category_id" id="category_id"
+                            data-category-select
+                            data-placeholder="Buscar categoría..."
                             class="form-control @error('category_id') is-invalid @enderror">
                             @foreach($categories as $category)
                             <option value="{{ $category->id }}"

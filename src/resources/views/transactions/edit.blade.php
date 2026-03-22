@@ -77,7 +77,7 @@
                                 class="form-control @error('amount') is-invalid @enderror"
                                 value="{{ old('amount', $transaction->amount) }}">
                             <div class="input-group-append">
-                                <span class="input-group-text">€</span>
+                                <span class="input-group-text">{{ user_currency() }}</span>
                             </div>
                             @error('amount')
                             <div class="invalid-feedback">{{ $message }}</div>

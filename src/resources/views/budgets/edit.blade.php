@@ -56,7 +56,7 @@
                                 class="form-control @error('limit_amount') is-invalid @enderror"
                                 value="{{ old('limit_amount', $budget->limit_amount) }}">
                             <div class="input-group-append">
-                                <span class="input-group-text">€</span>
+                                <span class="input-group-text">{{ user_currency() }}</span>
                             </div>
                             @error('limit_amount')
                             <div class="invalid-feedback">{{ $message }}</div>

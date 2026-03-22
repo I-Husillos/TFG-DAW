@@ -10,7 +10,7 @@
 
 <div class="row">
 
-    {{-- ── Columna izquierda: datos personales ────────────────── --}}
+    {{--    Columna izquierda: datos personales                    --}}
     <div class="col-lg-8">
 
         {{-- Datos personales --}}
@@ -194,7 +194,7 @@
 
     </div>
 
-    {{-- ── Columna derecha: credenciales y resumen ─────────────── --}}
+    {{--    Columna derecha: credenciales y resumen --}}
     <div class="col-lg-4">
 
         {{-- Resumen de cuenta --}}

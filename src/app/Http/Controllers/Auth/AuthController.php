@@ -7,6 +7,7 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Models\Profile;
 use App\Models\User;
+use App\Services\DefaultCategoryService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -74,6 +75,8 @@ class AuthController extends Controller
                 'language' => 'es',
                 'timezone' => 'Europe/Madrid',
             ]);
+
+            app(DefaultCategoryService::class)->createFor($user);
 
             return $user;
         });

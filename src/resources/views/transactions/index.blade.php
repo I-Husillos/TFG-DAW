@@ -48,6 +48,14 @@
                 <input type="date" id="filter-date-to"
                     class="form-control" placeholder="Hasta">
             </div>
+            <div class="col-md-2 col-sm-6 mb-2">
+                <select id="filter-currency" class="form-control">
+                    <option value="">Moneda: Todas</option>
+                    <option value="EUR">EUR — Euro</option>
+                    <option value="USD">USD — Dólar</option>
+                    <option value="GBP">GBP — Libra</option>
+                </select>
+            </div>
             <div class="col-md-3 col-sm-6 mb-2">
                 <button id="clear-filters" class="btn btn-secondary btn-block">
                     <i class="fas fa-times mr-1"></i> Limpiar filtros

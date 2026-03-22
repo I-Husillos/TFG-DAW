@@ -23,7 +23,7 @@
                             Alerta de presupuesto: <strong>{{ $alert['category'] }}</strong>
                         @endif
                     </h5>
-                    Has gastado <strong>{{ number_format($alert['spent'], 2, ',', '.') }} €</strong>
+                    Has gastado <strong>{{ number_format($alert['spent'], 2, ',', '.') }} {{ user_currency() }}</strong>
                     ({{ $alert['percentage'] }}%) del límite definido para este mes.
                     <a href="{{ route('budgets.index') }}" class="alert-link ml-1">
                         Ver presupuestos
@@ -34,13 +34,13 @@
     </div>
 @endif
 
-{{-- ── Tarjetas resumen del mes ─────────────────────────────── --}}
+{{-- Tarjetas resumen del mes --}}
 <div class="row">
 
     <div class="col-lg-3 col-6">
         <div class="small-box bg-success">
             <div class="inner">
-                <h3>{{ number_format($totalIncome, 2, ',', '.') }} €</h3>
+                <h3>{{ number_format($totalIncome, 2, ',', '.') }} {{ user_currency() }}</h3>
                 <p>Ingresos este mes</p>
             </div>
             <div class="icon"><i class="fas fa-arrow-up"></i></div>
@@ -54,7 +54,7 @@
     <div class="col-lg-3 col-6">
         <div class="small-box bg-danger">
             <div class="inner">
-                <h3>{{ number_format($totalExpense, 2, ',', '.') }} €</h3>
+                <h3>{{ number_format($totalExpense, 2, ',', '.') }} {{ user_currency() }}</h3>
                 <p>Gastos este mes</p>
             </div>
             <div class="icon"><i class="fas fa-arrow-down"></i></div>
@@ -68,7 +68,7 @@
     <div class="col-lg-3 col-6">
         <div class="small-box {{ $balance >= 0 ? 'bg-info' : 'bg-warning' }}">
             <div class="inner">
-                <h3>{{ number_format($balance, 2, ',', '.') }} €</h3>
+                <h3>{{ number_format($balance, 2, ',', '.') }} {{ user_currency() }}</h3>
                 <p>Balance del mes</p>
             </div>
             <div class="icon"><i class="fas fa-balance-scale"></i></div>
@@ -95,7 +95,7 @@
 
 <div class="row">
 
-    {{-- ── Últimas transacciones ────────────────────────────── --}}
+    {{-- Últimas transacciones --}}
     <div class="col-lg-6">
         <div class="card">
             <div class="card-header">
@@ -138,7 +138,7 @@
                             <td class="text-right">
                                 <span class="badge badge-{{ $transaction->type === 'income' ? 'success' : 'danger' }}">
                                     {{ $transaction->type === 'income' ? '+' : '-' }}
-                                    {{ number_format($transaction->amount, 2, ',', '.') }} €
+                                    {{ number_format($transaction->amount, 2, ',', '.') }} {{ user_currency() }}
                                 </span>
                             </td>
                         </tr>
@@ -150,7 +150,7 @@
         </div>
     </div>
 
-    {{-- ── Presupuestos del mes ─────────────────────────────── --}}
+    {{-- Presupuestos del mes --}}
     <div class="col-lg-6">
         <div class="card">
             <div class="card-header">
@@ -185,8 +185,8 @@
                                            ?? $budget->category->name }}
                         </span>
                         <span class="text-muted small">
-                            {{ number_format($spent, 2, ',', '.') }} €
-                            / {{ number_format($budget->limit_amount, 2, ',', '.') }} €
+                            {{ number_format($spent, 2, ',', '.') }} {{ user_currency() }}
+                            / {{ number_format($budget->limit_amount, 2, ',', '.') }} {{ user_currency() }}
                         </span>
                     </div>
                     {{-- AdminLTE progress bar nativa --}}

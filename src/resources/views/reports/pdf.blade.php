@@ -106,19 +106,19 @@
         <tr>
             <td>Total ingresos</td>
             <td class="text-right income">
-                + {{ number_format($totalIncome, 2, ',', '.') }} €
+                + {{ number_format($totalIncome, 2, ',', '.') }} {{ user_currency() }}
             </td>
         </tr>
         <tr>
             <td>Total gastos</td>
             <td class="text-right expense">
-                - {{ number_format($totalExpense, 2, ',', '.') }} €
+                - {{ number_format($totalExpense, 2, ',', '.') }} {{ user_currency() }}
             </td>
         </tr>
         <tr>
             <td><strong>Balance</strong></td>
             <td class="text-right {{ $balance >= 0 ? 'income' : 'expense' }}">
-                <strong>{{ number_format($balance, 2, ',', '.') }} €</strong>
+                <strong>{{ number_format($balance, 2, ',', '.') }} {{ user_currency() }}</strong>
             </td>
         </tr>
     </table>
@@ -136,7 +136,7 @@
         <tr>
             <td>{{ $category }}</td>
             <td class="text-right">
-                {{ number_format($amount, 2, ',', '.') }} €
+                {{ number_format($amount, 2, ',', '.') }} {{ user_currency() }}
             </td>
             <td class="text-right">
                 {{ $totalExpense > 0
@@ -164,7 +164,7 @@
             <td>{{ $t->category?->name ?? '—' }}</td>
             <td>{{ $t->date->format('d/m/Y') }}</td>
             <td class="text-right expense">
-                {{ number_format($t->amount, 2, ',', '.') }} €
+                {{ number_format($t->amount, 2, ',', '.') }} {{ user_currency() }}
             </td>
         </tr>
         @endforeach
@@ -187,10 +187,10 @@
                 {{ $budget->category->display_name ?? $budget->category->name }}
             </td>
             <td class="text-right">
-                {{ number_format($budget->spent, 2, ',', '.') }} €
+                {{ number_format($budget->spent, 2, ',', '.') }} {{ user_currency() }}
             </td>
             <td class="text-right">
-                {{ number_format($budget->limit_amount, 2, ',', '.') }} €
+                {{ number_format($budget->limit_amount, 2, ',', '.') }} {{ user_currency() }}
             </td>
             <td class="text-right {{ $budget->percentage >= 100 ? 'expense' : ($budget->percentage >= 80 ? '' : 'income') }}">
                 {{ $budget->percentage }}%
@@ -219,7 +219,7 @@
             <td>{{ $t->type === 'income' ? 'Ingreso' : 'Gasto' }}</td>
             <td class="text-right {{ $t->type === 'income' ? 'income' : 'expense' }}">
                 {{ $t->type === 'income' ? '+' : '-' }}
-                {{ number_format($t->amount, 2, ',', '.') }} €
+                {{ number_format($t->amount, 2, ',', '.') }} {{ user_currency() }}
             </td>
         </tr>
         @endforeach

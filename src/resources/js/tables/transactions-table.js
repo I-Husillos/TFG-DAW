@@ -30,6 +30,7 @@ export function initTransactionsTable(apiUrl) {
                 d.category_id = $('#filter-category').val();
                 d.date_from   = $('#filter-date-from').val();
                 d.date_to     = $('#filter-date-to').val();
+                d.currency    = $('#filter-currency').val();
             },
             error: function (xhr) {
                 console.error('Error DataTables transactions:', xhr.status, xhr.responseText);
@@ -87,8 +88,9 @@ export function initTransactionsTable(apiUrl) {
         ],
     });
 
+
     // Recarga al cambiar filtros
-    $('#filter-type, #filter-category, #filter-date-from, #filter-date-to')
+    $('#filter-type, #filter-category, #filter-date-from, #filter-date-to, #filter-currency')
         .on('change', function () {
             tabla.DataTable().ajax.reload();
         });
@@ -97,6 +99,7 @@ export function initTransactionsTable(apiUrl) {
     $('#clear-filters').on('click', function () {
         $('#filter-type, #filter-category').val('');
         $('#filter-date-from, #filter-date-to').val('');
+        $('#filter-currency').val('');
         tabla.DataTable().search('').ajax.reload();
     });
 }

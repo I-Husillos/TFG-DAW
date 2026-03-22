@@ -32,8 +32,14 @@ class TransactionQueryService extends BaseQueryService
 
     public function buildQuery(Request $request)
     {
+
         $query = Transaction::where('user_id', Auth::id())
             ->with('category');
+
+        // Filtro por moneda
+        if ($request->filled('currency')) {
+            $query->where('currency', $request->input('currency'));
+        }
 
         // Filtro por tipo (income / expense)
         if ($request->filled('type')) {

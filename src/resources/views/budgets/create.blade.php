@@ -57,7 +57,7 @@
                                 value="{{ old('limit_amount') }}"
                                 placeholder="0,00">
                             <div class="input-group-append">
-                                <span class="input-group-text">€</span>
+                                <span class="input-group-text">{{ user_currency() }}</span>
                             </div>
                             @error('limit_amount')
                             <div class="invalid-feedback">{{ $message }}</div>

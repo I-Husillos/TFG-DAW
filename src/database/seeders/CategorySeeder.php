@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Category;
 use App\Models\User;
+use App\Services\DefaultCategoryService;
 use Illuminate\Database\Seeder;
 
 class CategorySeeder extends Seeder
@@ -11,6 +12,7 @@ class CategorySeeder extends Seeder
     public function run(): void
     {
         $user = User::first();
+        app(DefaultCategoryService::class)->createFor($user);
 
         // Categorías de ingreso predefinidas
         $income = [

@@ -33,7 +33,7 @@
                 <strong class="text-{{ $transaction->type === 'income' ? 'success' : 'danger' }} h5">
                     {{ $transaction->type === 'income' ? '+' : '-' }}
                     {{ number_format($transaction->amount, 2, ',', '.') }}
-                    {{ $transaction->currency }}
+                    {{ auth()->user()?->profile?->currency ?? $transaction->currency ?? 'EUR' }}
                 </strong>
             </dd>
 

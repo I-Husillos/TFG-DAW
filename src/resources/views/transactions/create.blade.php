@@ -73,7 +73,7 @@
                                 value="{{ old('amount') }}"
                                 placeholder="0,00">
                             <div class="input-group-append">
-                                <span class="input-group-text">€</span>
+                                <span class="input-group-text">{{ old('currency', user_currency()) }}</span>
                             </div>
                             @error('amount')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -87,10 +87,12 @@
                         <label for="currency">Moneda <span class="text-danger">*</span></label>
                         <select name="currency" id="currency"
                             class="form-control @error('currency') is-invalid @enderror">
-                            <option value="EUR" {{ old('currency', 'EUR') === 'EUR' ? 'selected' : '' }}>EUR — Euro</option>
+                            <option value="{{ user_currency() }}" selected>Moneda actual: {{ user_currency() }}</option>
+                            <option value="EUR" {{ old('currency') === 'EUR' ? 'selected' : '' }}>EUR — Euro</option>
                             <option value="USD" {{ old('currency') === 'USD' ? 'selected' : '' }}>USD — Dólar</option>
                             <option value="GBP" {{ old('currency') === 'GBP' ? 'selected' : '' }}>GBP — Libra</option>
                         </select>
+
                         @error('currency')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
